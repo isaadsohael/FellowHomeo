@@ -1,5 +1,4 @@
 import sqlite3
-import patientClass
 import record_items
 
 
@@ -22,7 +21,8 @@ def create_database():
 def add_patient(patient_data: list):
     db = sqlite3.connect("database.db")
     cursor = db.cursor()
-    cursor.execute("""INSERT INTO patient_data VALUES (?,?,?,?,?,?,?,?)""", patient_data)
+    cursor.execute(f"""INSERT INTO patient_data VALUES ({('?,' * len(patient_data)).rstrip(',')})""",
+                   patient_data)
     db.commit()
     db.close()
 
@@ -58,9 +58,13 @@ def update_patient(phone_number, new_data: list):
     db = sqlite3.connect("database.db")
     cursor = db.cursor()
     for item in record_items.patient_record_items:
-        cursor.execute(f"""UPDATE patient_data SET {item} = (?) WHERE phone_number = (?)""",
-                       (new_data[record_items.patient_record_items.index(item)], phone_number,))
-        db.commit()
+        if item != "phone_number":
+            cursor.execute(f"""UPDATE patient_data SET {item} = (?) WHERE phone_number = (?)""",
+                           (new_data[record_items.patient_record_items.index(item)], phone_number,))
+            db.commit()
+    cursor.execute(f"""UPDATE patient_data SET phone_number = (?) WHERE phone_number = (?)""",
+                   (new_data[record_items.patient_record_items.index("phone_number")], phone_number,))
+    db.commit()
     db.close()
 
 
