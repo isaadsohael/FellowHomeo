@@ -2,10 +2,10 @@ import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
 import os
 import sys
-import dataHandler
-import screen_manager
+from services import dataHandler, screen_manager
 
 
+# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -21,7 +21,7 @@ class PatientRecordUI(pqw.QMainWindow):
         super(PatientRecordUI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path("resources/assets/ui/patient_records.ui")
+        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/patient_records.ui")
 
         # load ui
         uic.loadUi(self.ui, self)

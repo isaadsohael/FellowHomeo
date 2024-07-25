@@ -2,11 +2,10 @@ import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
 import os
 import sys
-import dataHandler
-import patient_manager
-import screen_manager
+from services import dataHandler, patient_manager, screen_manager
 
 
+# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -22,8 +21,7 @@ class UI(pqw.QMainWindow):
         super(UI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path("resources/assets/ui/main_window.ui")
-
+        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/main_window.ui")
         # load ui
         uic.loadUi(self.ui, self)
 
@@ -47,7 +45,8 @@ class UI(pqw.QMainWindow):
         self.delete_patient_action.triggered.connect(
             lambda x: screen_manager.show_dialog("Warning", "Are you sure you want to delete the person?",
                                                  detailed_text=f"All Records of this patient will be deleted:\n{self.patient_list_widget.currentItem().text()}" if self.patient_list_widget.currentItem().isSelected() else "",
-                                                 do_what="delete_patient"))
+                                                 do_what="delete_patient") if self.isSelected else screen_manager.show_dialog(
+                "Warning", "No Patient Selected"))
 
         self.search_bar = self.findChild(pqw.QLineEdit, "search_textbox")
         self.search_bar.returnPressed.connect(self.search_patients)

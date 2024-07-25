@@ -4,13 +4,10 @@ import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
 import os
 
-import constants
-import patient_manager
-import screen_manager
-import record_items
-import dataHandler
+from services import constants, record_items, dataHandler, patient_manager, screen_manager
 
 
+# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -26,7 +23,7 @@ class PatientInfoUI(pqw.QMainWindow):
         super(PatientInfoUI, self).__init__()
 
         # patient info screen ui declaration
-        self.ui = resource_path("resources/assets/ui/patient_info.ui")
+        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/patient_info.ui")
 
         # load ui
         uic.loadUi(self.ui, self)
@@ -455,13 +452,13 @@ class PatientInfoUI(pqw.QMainWindow):
 
     def add_media(self):
         # make image, video directories
-        os.makedirs(self.images_destination_directory, exist_ok=True)
-        os.makedirs(self.videos_destination_directory, exist_ok=True)
+        os.makedirs(resource_path(self.images_destination_directory), exist_ok=True)
+        os.makedirs(resource_path(self.videos_destination_directory), exist_ok=True)
 
         # stores the images into database folder (copy then delete : not cutting because of being aware)
         for image in self.selected_image_directory:
-            shutil.copy2(image, self.images_destination_directory)
+            shutil.copy2(resource_path(image), resource_path(self.images_destination_directory))
 
         # stores the videos into database folder (copy then delete : not cutting because of being aware)
         for video in self.selected_video_directory:
-            shutil.copy2(video, self.videos_destination_directory)
+            shutil.copy2(resource_path(video), resource_path(self.videos_destination_directory))

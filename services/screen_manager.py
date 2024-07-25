@@ -1,12 +1,10 @@
 import PyQt5.QtWidgets as pqw
-import main_screen
-import patient_record_screen
-import patient_info_screen
+from screens import main_screen, patient_info_screen, patient_record_screen
 import sys
 
 screens = []
 widget = pqw.QStackedWidget()
-# widget.setFixedSize(550, 450)
+widget.resize(550, 400)
 widget.setWindowTitle("FellowHomeo")
 
 
@@ -18,12 +16,6 @@ def show_screen(screen, show_record_of=""):
         if screen not in screens:
             screens.append(screen)
         widget.setCurrentWidget(ui)
-        # widget.setCurrentIndex(0)
-        # patient_manager.update_patient_list()
-        # widget.currentWidget().patient_list_widget.clear()
-        # for patient in patient_manager.patient_list:
-        #     widget.currentWidget().patient_list_widget.addItem(
-        #         f'{patient.get_info("name")} | {patient.get_info("phone_number")}')
 
         # destroying other screens except current screen
         for v in range(len(widget)):
@@ -54,7 +46,6 @@ def show_screen(screen, show_record_of=""):
             widget.addWidget(ui)
             if screen not in screens:
                 screens.append(screen)
-            # widget.setCurrentIndex(screens.index(screen))
             widget.setCurrentWidget(ui)
             widget.currentWidget().show_records(show_record_of)
 
@@ -78,11 +69,11 @@ def show_dialog(title, text, detailed_text="", do_what=""):
         dialog.buttonClicked.connect(widget.currentWidget().delete_record_confirmation)
     elif do_what == "quit":
         dialog.setIcon(pqw.QMessageBox.Question)
-        dialog.setStandardButtons(pqw.QMessageBox.Close | pqw.QMessageBox.No)
+        dialog.setStandardButtons(pqw.QMessageBox.Yes | pqw.QMessageBox.No)
         dialog.buttonClicked.connect(quit_app)
     elif do_what == "go_back_warning":
         dialog.setIcon(pqw.QMessageBox.Warning)
-        dialog.setStandardButtons(pqw.QMessageBox.Yes | pqw.QMessageBox.No)
+        dialog.setStandardButtons(pqw.QMessageBox.Yes | pqw.QMessageBox.Abort)
         dialog.buttonClicked.connect(widget.currentWidget().go_back)
     elif do_what == "update":
         dialog.setIcon(pqw.QMessageBox.Question)
@@ -107,11 +98,9 @@ def show_dialog(title, text, detailed_text="", do_what=""):
 
 
 def quit_app(event):
-    if event.text() == "Close":
+    if event.text() == "&Yes":
         sys.exit()
 
 
 def destroy_screen(screen_name):
-    # widget.removeWidget(widget.widget(screens.index(screen_name)))
-    # screens.remove(screen_name)
     widget.removeWidget(screen_name)

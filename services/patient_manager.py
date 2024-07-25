@@ -1,6 +1,5 @@
 import sqlite3
-import dataHandler
-import patientClass
+from services import patientClass, dataHandler
 
 try:
     patient_list = [patientClass.Patient(patient) for patient in dataHandler.all_patients()]
