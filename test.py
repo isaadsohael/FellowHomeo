@@ -1,4 +1,4 @@
-import dataHandler
+import os
 
 p1 = ["Saad", "01753864731", "Ahmedpur, Rajshahi", "B-", str(["Fever"]), "17-03-2024", str(["17-03-2024"]),
       str(["very fever from previous week"])]
@@ -45,3 +45,13 @@ p13 = ["Kuddus", "some random number12", "Sagorpara, Rajshahi", "B-", str(["Addi
 # dataHandler.add_patient(p11)
 # dataHandler.add_patient(p12)
 # dataHandler.add_patient(p13)
+existing = ["a", "b", "c"]
+current = ["a", "b", "c", "d"]
+existing2 = ["a", "b", "c"]
+current2 = ["a", "b"]
+existing3 = ["a", "b", "c"]
+current3 = ["d", "e"]
+updated = current.copy()
+
+import os
+os.removedirs(r"D:\CodeWorks\Python Projects\FellowHomeo\patient_data")

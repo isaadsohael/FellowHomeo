@@ -1,20 +1,11 @@
 import shutil
-import sys
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
 import os
 
-from services import constants, record_items, dataHandler, patient_manager, screen_manager
+from PyQt5.QtGui import QIcon
 
-
-# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath("")
-
-    return os.path.join(base_path, relative_path)
+from services import constants, record_items, dataHandler, patient_manager, screen_manager, resource_path
 
 
 class PatientInfoUI(pqw.QMainWindow):
@@ -23,7 +14,7 @@ class PatientInfoUI(pqw.QMainWindow):
         super(PatientInfoUI, self).__init__()
 
         # patient info screen ui declaration
-        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/patient_info.ui")
+        self.ui = resource_path.resource_path("resources/assets/ui/patient_info.ui")
 
         # load ui
         uic.loadUi(self.ui, self)
@@ -49,8 +40,8 @@ class PatientInfoUI(pqw.QMainWindow):
         self.add_new_patient_action.setEnabled(True)
         self.add_new_patient_action.triggered.connect(self.show_new_patient_screen)
 
-        self.findChild(pqw.QPushButton, "necessary_images").clicked.connect(lambda x: self.select_media("images"))
-        self.findChild(pqw.QPushButton, "necessary_videos").clicked.connect(lambda x: self.select_media("videos"))
+        self.findChild(pqw.QPushButton, "add_image_button").clicked.connect(lambda x: self.select_media("images"))
+        self.findChild(pqw.QPushButton, "add_video_button").clicked.connect(lambda x: self.select_media("videos"))
 
         self.findChild(pqw.QAction, "actionShow_Patients").triggered.connect(
             lambda x: self.go_back_confirmation("actionShow_Patients"))
@@ -78,10 +69,11 @@ class PatientInfoUI(pqw.QMainWindow):
                 if self.findChild(pqw.QPlainTextEdit, item).toPlainText() != "":
                     self.form_has_information = True
             else:
-                if self.findChild(pqw.QPushButton, item).text() not in ["Add Images", "Add Videos"]:
+                if self.findChild(pqw.QComboBox, item).currentText() not in ["No Images Selected",
+                                                                             "No Videos Selected"]:
                     self.form_has_information = True
 
-        # reference button (ref_btn) helps determine which page we are at (eg: new or exisiting profile page)
+        # reference button (ref_btn) helps determine which page we are at (eg: new or existing profile page)
         ref_btn = self.findChild(pqw.QPushButton, "add_delete_record_button")
         if ref_btn.text() == "Add Record":
             # going back from new patient profile screen
@@ -104,9 +96,17 @@ class PatientInfoUI(pqw.QMainWindow):
                             form_updated = True
                             break
                     else:
-                        if self.findChild(pqw.QPushButton, item).text() != self.patient_records[i]:
-                            form_updated = True
-                            break
+                        # lists all the item in current media combo box
+                        current_media = [self.findChild(pqw.QComboBox, item).itemText(i) for i in
+                                         range(self.findChild(pqw.QComboBox, item).count())]
+
+                        existing_media = os.listdir(self.patient_records[i])
+
+                        # loop through the images/videos saved in database path and see if any update happened in form
+                        for media in existing_media:
+                            if media not in current_media:
+                                form_updated = True
+                                break
                     i += 1
                 if form_updated:
                     screen_manager.show_dialog("Warning",
@@ -134,10 +134,11 @@ class PatientInfoUI(pqw.QMainWindow):
                 if item not in record_items.record_buttons:
                     self.findChild(pqw.QPlainTextEdit, item).clear()
                 else:
+                    self.findChild(pqw.QComboBox, item).clear()
                     if item == "necessary_images":
-                        self.findChild(pqw.QPushButton, item).setText("Add Images")
+                        self.findChild(pqw.QComboBox, item).addItem("No Images Selected")
                     else:
-                        self.findChild(pqw.QPushButton, item).setText("Add Videos")
+                        self.findChild(pqw.QComboBox, item).addItem("No Videos Selected")
 
     def show_new_patient_screen(self):
         self.findChild(pqw.QLabel, "patient_info_screen_header").setText("Create New Patient Profile")
@@ -148,8 +149,15 @@ class PatientInfoUI(pqw.QMainWindow):
                 self.findChild(pqw.QPlainTextEdit, item).setReadOnly(False)
                 self.findChild(pqw.QPlainTextEdit, item).setEnabled(True)
             else:
-                self.findChild(pqw.QPushButton, item).setEnabled(True)
+                self.findChild(pqw.QComboBox, item).setEnabled(True)
+                self.findChild(pqw.QComboBox, item).clear()
+                if item == "necessary_images":
+                    self.findChild(pqw.QComboBox, item).addItem("No Images Selected")
+                else:
+                    self.findChild(pqw.QComboBox, item).addItem("No Videos Selected")
 
+        self.findChild(pqw.QPushButton, "add_image_button").setEnabled(True)
+        self.findChild(pqw.QPushButton, "add_video_button").setEnabled(True)
         self.edit_record_button.setEnabled(False)
         self.findChild(pqw.QAction, "actionAdd_New_Patient").setEnabled(False)
 
@@ -182,8 +190,19 @@ class PatientInfoUI(pqw.QMainWindow):
                 self.findChild(pqw.QPlainTextEdit, item).setPlainText(self.patient_records[i])
                 self.findChild(pqw.QPlainTextEdit, item).setReadOnly(True)
             else:
-                self.findChild(pqw.QPushButton, item).setText(self.patient_records[i])
+                try:
+                    existing_media = os.listdir(self.patient_records[i])
+                    self.findChild(pqw.QComboBox, item).addItems(existing_media)
+                except FileNotFoundError:
+                    if item == "necessary_images":
+                        existing_media = "No Images Selected"
+                    else:
+                        existing_media = "No Videos Selected"
+                    self.findChild(pqw.QComboBox, item).addItems(existing_media)
             i += 1
+
+        self.findChild(pqw.QPushButton, "add_image_button").setEnabled(False)
+        self.findChild(pqw.QPushButton, "add_video_button").setEnabled(False)
 
     def add_new_record_screen(self, patient):
         self.add_new_patient_action.setEnabled(True)
@@ -212,9 +231,6 @@ class PatientInfoUI(pqw.QMainWindow):
             if item not in record_items.record_buttons:
                 if item != "last_visited_date" and self.findChild(pqw.QPlainTextEdit, item).document().isEmpty():
                     filled = False
-            else:
-                if self.findChild(pqw.QPushButton, item).text() in ["Add Images", "Add Videos"]:
-                    filled = False
         return filled
 
     def add_delete_patient_record(self):
@@ -238,11 +254,17 @@ class PatientInfoUI(pqw.QMainWindow):
                                     record = [self.findChild(pqw.QPlainTextEdit, item).toPlainText()]
                                     patient_info.append(str(record))
                             else:
-                                record = [self.findChild(pqw.QPushButton, item).text()]
+                                record = [""]
+                                if self.findChild(pqw.QComboBox, item).currentText() not in ["No Images Selected",
+                                                                                             "No Videos Selected"]:
+                                    if item == "necessary_images":
+                                        record = [self.images_destination_directory]
+                                    else:
+                                        record = [self.videos_destination_directory]
                                 patient_info.append(str(record))
 
-                    dataHandler.add_patient(patient_info)
                     self.add_media()
+                    dataHandler.add_patient(patient_info)
                     patient_manager.update_patient_list()
                     screen_manager.show_dialog("Success", "Patient Added Successfully")
                     self.clear_textbox()
@@ -257,27 +279,28 @@ class PatientInfoUI(pqw.QMainWindow):
                 screen_manager.show_dialog("Warning", "All Form Information should be filled")
 
         elif self.add_delete_record_button.text() == "Add New Record":
-            for item in record_items.patient_record_items:
-                if item not in record_items.variable_records:
-                    record = self.findChild(pqw.QPlainTextEdit, item).toPlainText()
-                    patient_info.append(record)
-                else:
-                    if item not in record_items.record_buttons:
-                        if item == "last_visited_date":
-                            last_visited_dates = [dates for dates in
-                                                  eval(dataHandler.query_patient_info("last_visited_date",
-                                                                                      self.patient_phone_number))]
-                            record = last_visited_dates + [self.findChild(pqw.QPlainTextEdit, "date").toPlainText()]
-                            patient_info.append(str(record))
+            if self.form_filled():
+                for item in record_items.patient_record_items:
+                    if item not in record_items.variable_records:
+                        record = self.findChild(pqw.QPlainTextEdit, item).toPlainText()
+                        patient_info.append(record)
+                    else:
+                        if item not in record_items.record_buttons:
+                            if item == "last_visited_date":
+                                last_visited_dates = [dates for dates in
+                                                      eval(dataHandler.query_patient_info("last_visited_date",
+                                                                                          self.patient_phone_number))]
+                                record = last_visited_dates + [self.findChild(pqw.QPlainTextEdit, "date").toPlainText()]
+                                patient_info.append(str(record))
+                            else:
+                                prev_record = eval(dataHandler.query_patient_info(item, self.patient_phone_number))
+                                record = prev_record + [self.findChild(pqw.QPlainTextEdit, item).toPlainText()]
+                                patient_info.append(str(record))
                         else:
                             prev_record = eval(dataHandler.query_patient_info(item, self.patient_phone_number))
-                            record = prev_record + [self.findChild(pqw.QPlainTextEdit, item).toPlainText()]
+                            record = prev_record + [self.images_destination_directory]
                             patient_info.append(str(record))
-                    else:
-                        prev_record = eval(dataHandler.query_patient_info(item, self.patient_phone_number))
-                        record = prev_record + [self.findChild(pqw.QPushButton, item).text()]
-                        patient_info.append(str(record))
-
+            self.add_media()
             dataHandler.update_patient(self.patient_phone_number, patient_info)
             patient_manager.update_patient_list()
             screen_manager.show_dialog("Success", "Patient New Record Added Successfully")
@@ -295,15 +318,25 @@ class PatientInfoUI(pqw.QMainWindow):
 
     def check_for_records_to_update(self):
         updated_records = []
+
         for item in record_items.patient_record_items:
             if item not in record_items.record_buttons:
                 updated_records.append(self.findChild(pqw.QPlainTextEdit, item).toPlainText())
             else:
-                updated_records.append(self.findChild(pqw.QPushButton, item).text())
-        for v in record_items.patient_record_items:
-            index = record_items.patient_record_items.index(v)
-            if updated_records[index] != self.patient_records[index]:
-                self.changed_record[v] = updated_records[index]
+                # lists all the item in current media combo box and let them in updated records
+                # because medias are to be default undergo the update functionality
+                current_media = [self.findChild(pqw.QComboBox, item).itemText(i) for i in
+                                 range(self.findChild(pqw.QComboBox, item).count())]
+                updated_records.append(current_media)
+
+        for item in record_items.patient_record_items:
+            index = record_items.patient_record_items.index(item)
+            if item not in record_items.record_buttons:
+                if updated_records[index] != self.patient_records[index]:
+                    self.changed_record[item] = updated_records[index]
+            # not checking if media has updated. medias are to be default undergo the update functionality!
+            else:
+                self.changed_record[item] = updated_records[index]
 
         if "phone_number" in self.changed_record.keys() and patient_manager.patient_exists(
                 self.changed_record["phone_number"]):
@@ -326,18 +359,35 @@ class PatientInfoUI(pqw.QMainWindow):
         patient_info = list(dataHandler.fetch_patient(self.patient_phone_number))
         date = self.patient_records[record_items.patient_record_items.index("date")]
         date_index = eval(patient_info[record_items.patient_record_items.index("last_visited_date")]).index(date)
+
         for record in self.changed_record.keys():
-            if record in record_items.variable_records:
-                old_record = eval(patient_info[record_items.patient_record_items.index(record)])
-                old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
-                patient_info[record_items.patient_record_items.index(record)] = str(old_record)
-            elif record == "date":
-                patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
-                old_record = eval(patient_info[record_items.patient_record_items.index("last_visited_date")])
-                old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
-                patient_info[record_items.patient_record_items.index("last_visited_date")] = str(old_record)
+            if record not in record_items.record_buttons:
+                if record in record_items.variable_records:
+                    old_record = eval(patient_info[record_items.patient_record_items.index(record)])
+                    old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
+                    patient_info[record_items.patient_record_items.index(record)] = str(old_record)
+                elif record == "date":
+                    patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
+                    old_record = eval(patient_info[record_items.patient_record_items.index("last_visited_date")])
+                    old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
+                    patient_info[record_items.patient_record_items.index("last_visited_date")] = str(old_record)
+                else:
+                    patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
             else:
-                patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
+                """
+                any of the below cases may happen: our concern is with combo box items 
+                4 cases can happen:
+                    case 1: no media added/removed
+                    case 2: media added and prev media exists
+                    case 3: few media removed few remained
+                    case 4: medias removed and added so new media may remain prev media may not 
+                """
+                existing_media = os.listdir(self.patient_records[record_items.patient_record_items.index(record)])
+                for media in self.changed_record[record]:
+                    if media not in existing_media:
+                        patient_manager.remove_media(media)
+
+        self.add_media()
         dataHandler.update_patient(self.patient_phone_number, patient_info)
         self.patient_phone_number = patient_info[record_items.patient_record_items.index("phone_number")]
         patient_manager.update_patient_list()
@@ -351,11 +401,11 @@ class PatientInfoUI(pqw.QMainWindow):
                 self.findChild(pqw.QPlainTextEdit, item).clear()
                 self.findChild(pqw.QPlainTextEdit, item).setEnabled(True)
             else:
+                self.findChild(pqw.QComboBox, item).clear()
                 if item == "necessary_images":
-                    self.findChild(pqw.QPushButton, item).setText("Add Images")
+                    self.findChild(pqw.QComboBox, item).addItem("No Images Selected")
                 else:
-                    self.findChild(pqw.QPushButton, item).setText("Add Videos")
-                self.findChild(pqw.QPushButton, item).setEnabled(True)
+                    self.findChild(pqw.QComboBox, item).addItem("No Videos Selected")
 
         self.add_delete_record_button.setEnabled(True)
         self.edit_record_button.setEnabled(True)
@@ -371,7 +421,7 @@ class PatientInfoUI(pqw.QMainWindow):
                 self.clear_textbox()
                 self.go_back_confirmation("actionGo_Back")
             else:
-                dataHandler.delete_patient(self.patient_phone_number)
+                patient_manager.remove_patient_data(self.patient_phone_number)
                 screen_manager.show_screen("MainWindow")
                 patient_manager.update_patient_list()
                 screen_manager.widget.currentWidget().show_patient_list(patient_manager.patient_list)
@@ -384,8 +434,13 @@ class PatientInfoUI(pqw.QMainWindow):
             record = eval(patient_info[record_items.patient_record_items.index(item)])
             record.remove(record[record_date_index])
             patient_info[record_items.patient_record_items.index(item)] = str(record)
-        dataHandler.update_patient(self.patient_phone_number, patient_info)
-        screen_manager.show_dialog("Success", "Patient Record Deleted Successfully")
+        try:
+            os.removedirs(resource_path.resource_path(
+                f"{constants.media_directory_name}\\{self.patient_phone_number}\\{record_date}"))
+            dataHandler.update_patient(self.patient_phone_number, patient_info)
+            screen_manager.show_dialog("Success", "Patient Record Deleted Successfully")
+        except Exception as e:
+            screen_manager.show_dialog("Warning!", e)
 
     def edit_patient_record(self):
         for item in record_items.patient_record_items:
@@ -395,8 +450,9 @@ class PatientInfoUI(pqw.QMainWindow):
                     self.findChild(pqw.QPlainTextEdit, item).setReadOnly(False)
                 else:
                     self.findChild(pqw.QPlainTextEdit, item).setEnabled(False)
-            else:
-                self.findChild(pqw.QPushButton, item).setEnabled(True)
+
+        self.findChild(pqw.QPushButton, "add_image_button").setEnabled(True)
+        self.findChild(pqw.QPushButton, "add_video_button").setEnabled(True)
 
         self.edit_record_button.setEnabled(False)
         self.add_delete_record_button.setText("Update Record")
@@ -413,14 +469,16 @@ class PatientInfoUI(pqw.QMainWindow):
             self.patient_records.clear()
             self.show_existing_record(dataHandler.fetch_patient(self.patient_phone_number), self.changed_record["date"])
 
+    # this function used when update pop up is destroyed
     def clear_changed_record(self):
         self.changed_record.clear()
 
     def select_media(self, media):
         patient_number = self.findChild(pqw.QPlainTextEdit, 'phone_number').toPlainText()
         record_date = self.findChild(pqw.QPlainTextEdit, 'date').toPlainText()
-        root_dir = os.getcwd()
-        os.makedirs(f"{root_dir}\\patient_data", exist_ok=True)
+        # root_dir = os.getcwd()
+        os.makedirs(resource_path.resource_path(constants.media_directory_name), exist_ok=True)
+        # os.makedirs(f"{root_dir}\\patient_data", exist_ok=True)
         if media == "images":
 
             # stores the directory of selected images
@@ -428,13 +486,21 @@ class PatientInfoUI(pqw.QMainWindow):
             # this is why only the first index item is taken
             self.selected_image_directory = pqw.QFileDialog.getOpenFileNames(self,
                                                                              "Select Image(s)",
-                                                                             root_dir,
+                                                                             resource_path.resource_path(""),
                                                                              f"Custom Files {constants.image_extensions}")[
                 0]
 
             # makes database directory for this particular patient on the particular record date
-            self.images_destination_directory = f"{root_dir}\\patient_data\\{patient_number}\\{record_date}\\images"
-            self.findChild(pqw.QPushButton, "necessary_images").setText("Images Selected")
+            # self.images_destination_directory = f"{root_dir}\\patient_data\\{patient_number}\\{record_date}\\images"
+            self.images_destination_directory = resource_path.resource_path(
+                f"{constants.media_directory_name}\\{patient_number}\\{record_date}\\images")
+
+            current_media = [self.findChild(pqw.QComboBox, "necessary_images").itemText(i) for i in
+                             range(self.findChild(pqw.QComboBox, "necessary_images").count())]
+            if "No Images Selected" in current_media:
+                self.findChild(pqw.QComboBox, "necessary_images").removeItem(0)
+
+            self.findChild(pqw.QComboBox, "necessary_images").addItems(self.selected_image_directory)
 
 
         else:
@@ -442,23 +508,39 @@ class PatientInfoUI(pqw.QMainWindow):
             # stores the directory of selected videos
             self.selected_video_directory = pqw.QFileDialog.getOpenFileNames(self,
                                                                              "Select Image(s)",
-                                                                             root_dir,
+                                                                             resource_path.resource_path(""),
                                                                              f"Custom Files {constants.video_extensions}")[
                 0]
 
             # makes database directory for this particular patient on the particular record date
-            self.videos_destination_directory = f"{root_dir}\\patient_data\\{patient_number}\\{record_date}\\videos"
-            self.findChild(pqw.QPushButton, "necessary_videos").setText("Videos Selected")
+            # self.videos_destination_directory = f"{root_dir}\\patient_data\\{patient_number}\\{record_date}\\videos"
+            self.videos_destination_directory = resource_path.resource_path(
+                f"{constants.media_directory_name}\\{patient_number}\\{record_date}\\videos")
+
+            current_media = [self.findChild(pqw.QComboBox, "necessary_videos").itemText(i) for i in
+                             range(self.findChild(pqw.QComboBox, "necessary_videos").count())]
+            if "No Videos Selected" in current_media:
+                self.findChild(pqw.QComboBox, "necessary_videos").removeItem(0)
+
+            self.findChild(pqw.QComboBox, "necessary_videos").addItems(self.selected_video_directory)
 
     def add_media(self):
-        # make image, video directories
-        os.makedirs(resource_path(self.images_destination_directory), exist_ok=True)
-        os.makedirs(resource_path(self.videos_destination_directory), exist_ok=True)
 
-        # stores the images into database folder (copy then delete : not cutting because of being aware)
-        for image in self.selected_image_directory:
-            shutil.copy2(resource_path(image), resource_path(self.images_destination_directory))
+        # create image directory
+        if self.selected_image_directory:
+            os.makedirs(self.images_destination_directory, exist_ok=True)
+            # stores the images into database folder (copy then delete : not cutting because of being aware)
+            for image in self.selected_image_directory:
+                shutil.copy2(image, self.images_destination_directory)
 
-        # stores the videos into database folder (copy then delete : not cutting because of being aware)
-        for video in self.selected_video_directory:
-            shutil.copy2(resource_path(video), resource_path(self.videos_destination_directory))
+        # create video directory
+        if self.selected_video_directory:
+            os.makedirs(self.videos_destination_directory, exist_ok=True)
+            # stores the videos into database folder (copy then delete : not cutting because of being aware)
+            for video in self.selected_video_directory:
+                shutil.copy2(video, self.videos_destination_directory)
+
+        self.selected_image_directory.clear()
+        self.selected_video_directory.clear()
+        self.images_destination_directory = ""
+        self.videos_destination_directory = ""

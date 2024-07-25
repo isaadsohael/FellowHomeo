@@ -1,18 +1,7 @@
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-import os
-import sys
 from services import dataHandler, patient_manager, screen_manager
-
-
-# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath("")
-
-    return os.path.join(base_path, relative_path)
+from services import resource_path
 
 
 class UI(pqw.QMainWindow):
@@ -21,7 +10,7 @@ class UI(pqw.QMainWindow):
         super(UI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/main_window.ui")
+        self.ui = resource_path.resource_path("resources/assets/ui/main_window.ui")
         # load ui
         uic.loadUi(self.ui, self)
 
@@ -103,8 +92,9 @@ class UI(pqw.QMainWindow):
     def delete_patient(self, event):
         if event.text() == "&Yes":
             if self.patient_list_widget.currentItem().isSelected():
-                dataHandler.delete_patient(
-                    patient_manager.patient_list[self.patient_list_widget.currentRow()].get_info("phone_number"))
+                patient_phone_number = patient_manager.patient_list[self.patient_list_widget.currentRow()].get_info(
+                    "phone_number")
+                patient_manager.remove_patient_data(patient_phone_number)
                 patient_manager.update_patient_list()
                 self.patient_list_widget.clear()
                 self.show_patient_list(patient_manager.patient_list)

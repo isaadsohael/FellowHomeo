@@ -14,9 +14,9 @@ def resource_path(relative_path):
 
 
 def create_database():
-    os.makedirs(os.getcwd()+"/database", exist_ok=True)
+    os.makedirs(resource_path('database'),exist_ok=True)
     items = record_items.patient_record_items
-    db = sqlite3.connect(resource_path(os.getcwd() + "/database/database.db"))
+    db = sqlite3.connect(resource_path("database/database.db"))
     cursor = db.cursor()
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS patient_data({items[0]} text)""")
     db.commit()

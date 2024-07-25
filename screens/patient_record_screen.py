@@ -1,18 +1,6 @@
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-import os
-import sys
-from services import dataHandler, screen_manager
-
-
-# https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile/13790741#13790741
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath("")
-
-    return os.path.join(base_path, relative_path)
+from services import dataHandler, screen_manager, resource_path
 
 
 class PatientRecordUI(pqw.QMainWindow):
@@ -21,7 +9,7 @@ class PatientRecordUI(pqw.QMainWindow):
         super(PatientRecordUI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path(os.getcwd() + "/resources/assets/ui/patient_records.ui")
+        self.ui = resource_path.resource_path("resources/assets/ui/patient_records.ui")
 
         # load ui
         uic.loadUi(self.ui, self)
@@ -57,15 +45,6 @@ class PatientRecordUI(pqw.QMainWindow):
         except:
             self.patient_name.setText("PatientName")
             self.patient_phone_number.setText("PatientPhoneNumber")
-
-        # try:
-        #     self.patient_name.setText([v.rstrip().lstrip() for v in screen_manager.widget.widget(
-        #         0).patient_list_widget.currentItem().text().split("|")][0])
-        #     self.patient_phone_number.setText([v.rstrip().lstrip() for v in screen_manager.widget.widget(
-        #         0).patient_list_widget.currentItem().text().split("|")][-1])
-        # except AttributeError:
-        #     self.patient_name.setText("PatientName")
-        #     self.patient_phone_number.setText("PatientPhoneNumber")
 
         self.patient_records_list_widget.clear()
         last_visited_dates = [dates for dates in

@@ -7,4 +7,8 @@
     4. delete media with patient/specific record
     5. date selection functionality
     6. some rules on form (eg. phone number only number)
-    7. 
+    7. widget names should be in another folder stored in variables
+
+# Media Directory Format:
+
+root --> patient_data --> phone_number --> record_date --> ...
