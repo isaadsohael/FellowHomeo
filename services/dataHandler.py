@@ -1,7 +1,7 @@
 import sys
 import os
 import sqlite3
-from services import record_items
+from services import record_items, constants
 
 
 def resource_path(relative_path):
@@ -16,7 +16,7 @@ def resource_path(relative_path):
 def create_database():
     os.makedirs(resource_path('database'),exist_ok=True)
     items = record_items.patient_record_items
-    db = sqlite3.connect(resource_path("database/database.db"))
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS patient_data({items[0]} text)""")
     db.commit()
@@ -31,7 +31,7 @@ def create_database():
 
 
 def add_patient(patient_data: list):
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute(f"""INSERT INTO patient_data VALUES ({('?,' * len(patient_data)).rstrip(',')})""",
                    patient_data)
@@ -40,7 +40,7 @@ def add_patient(patient_data: list):
 
 
 def all_patients():
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute("SELECT * FROM patient_data")
     data = cursor.fetchall()
@@ -48,7 +48,7 @@ def all_patients():
 
 
 def fetch_patient(phone_number):
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute("SELECT * FROM patient_data WHERE phone_number = (?)", (phone_number,))
     data = cursor.fetchall()
@@ -58,7 +58,7 @@ def fetch_patient(phone_number):
 
 
 def query_patient_info(query_data, phone_number):
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute(f"""SELECT {query_data} FROM patient_data WHERE phone_number = (?)""", (phone_number,))
     data = cursor.fetchall()
@@ -67,7 +67,7 @@ def query_patient_info(query_data, phone_number):
 
 
 def update_patient(phone_number, new_data: list):
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     for item in record_items.patient_record_items:
         if item != "phone_number":
@@ -81,7 +81,7 @@ def update_patient(phone_number, new_data: list):
 
 
 def delete_patient(phone_number):
-    db = sqlite3.connect("../database.db")
+    db = sqlite3.connect(resource_path(constants.database_directory))
     cursor = db.cursor()
     cursor.execute("DELETE FROM patient_data WHERE phone_number = (?)", (phone_number,))
     db.commit()

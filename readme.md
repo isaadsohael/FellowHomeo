@@ -8,6 +8,12 @@
     5. date selection functionality
     6. some rules on form (eg. phone number only number)
     7. widget names should be in another folder stored in variables
+    8. date soritng system (most recent, first record)
+
+# Errors:
+
+    1. media first time multiple add korleo showing 1 ta
+    2.
 
 # Media Directory Format:
 

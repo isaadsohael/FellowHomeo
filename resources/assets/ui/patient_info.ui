@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-390</y>
+         <y>0</y>
          <width>508</width>
-         <height>678</height>
+         <height>663</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -160,8 +160,14 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QPlainTextEdit" name="date">
-             <property name="tabChangesFocus">
+            <widget class="QDateEdit" name="date">
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::UpDownArrows</enum>
+             </property>
+             <property name="displayFormat">
+              <string>dd/MM/yyyy</string>
+             </property>
+             <property name="calendarPopup">
               <bool>true</bool>
              </property>
             </widget>
@@ -179,11 +185,11 @@
             </widget>
            </item>
            <item row="7" column="1">
-            <widget class="QPlainTextEdit" name="last_visited_date">
-             <property name="inputMethodHints">
-              <set>Qt::ImhDate</set>
+            <widget class="QDateEdit" name="last_visited_date">
+             <property name="displayFormat">
+              <string>dd/MM/yyyy</string>
              </property>
-             <property name="tabChangesFocus">
+             <property name="calendarPopup">
               <bool>true</bool>
              </property>
             </widget>
@@ -210,21 +216,14 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="label_9">
              <property name="text">
               <string>Necessary Images:</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Necessary Videos:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="1">
+           <item row="10" column="1">
             <widget class="QFrame" name="frame_3">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
@@ -258,7 +257,7 @@
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../icons/plus.ico</normaloff>../icons/plus.ico</iconset>
+                  <normaloff>../icons/add_icon.png</normaloff>../icons/add_icon.png</iconset>
                 </property>
                </widget>
               </item>
@@ -269,14 +268,21 @@
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../icons/edit-remove.ico</normaloff>../icons/edit-remove.ico</iconset>
+                  <normaloff>../icons/remove_icon.png</normaloff>../icons/remove_icon.png</iconset>
                 </property>
                </widget>
               </item>
              </layout>
             </widget>
            </item>
-           <item row="10" column="1">
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Necessary Videos:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="1">
             <widget class="QFrame" name="frame_4">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
@@ -310,7 +316,7 @@
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../icons/plus.ico</normaloff>../icons/plus.ico</iconset>
+                  <normaloff>../icons/add_icon.png</normaloff>../icons/add_icon.png</iconset>
                 </property>
                </widget>
               </item>
@@ -321,11 +327,33 @@
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../icons/edit-remove.ico</normaloff>../icons/edit-remove.ico</iconset>
+                  <normaloff>../icons/remove_icon.png</normaloff>../icons/remove_icon.png</iconset>
                 </property>
                </widget>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Medicines:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QPlainTextEdit" name="medicines_provided">
+             <property name="inputMethodHints">
+              <set>Qt::ImhDate</set>
+             </property>
+             <property name="tabChangesFocus">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>
@@ -437,6 +465,24 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>phone_number</tabstop>
+  <tabstop>address</tabstop>
+  <tabstop>blood_group</tabstop>
+  <tabstop>short_description</tabstop>
+  <tabstop>date</tabstop>
+  <tabstop>last_visited_date</tabstop>
+  <tabstop>full_description</tabstop>
+  <tabstop>medicines_provided</tabstop>
+  <tabstop>necessary_images</tabstop>
+  <tabstop>necessary_videos</tabstop>
+  <tabstop>remove_video_button</tabstop>
+  <tabstop>add_video_button</tabstop>
+  <tabstop>add_image_button</tabstop>
+  <tabstop>remove_image_button</tabstop>
+ </tabstops>
  <resources>
   <include location="../icons/icons.qrc"/>
  </resources>

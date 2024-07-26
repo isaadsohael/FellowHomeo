@@ -1,6 +1,6 @@
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-from services import dataHandler, patient_manager, screen_manager
+from services import patient_manager, screen_manager
 from services import resource_path
 
 

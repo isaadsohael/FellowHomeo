@@ -1,6 +1,6 @@
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-from services import dataHandler, screen_manager, resource_path
+from services import dataHandler, screen_manager, resource_path, constants
 
 
 class PatientRecordUI(pqw.QMainWindow):
@@ -9,7 +9,7 @@ class PatientRecordUI(pqw.QMainWindow):
         super(PatientRecordUI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path.resource_path("resources/assets/ui/patient_records.ui")
+        self.ui = resource_path.resource_path(constants.patient_record_screen_dir)
 
         # load ui
         uic.loadUi(self.ui, self)

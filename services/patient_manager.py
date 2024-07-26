@@ -1,4 +1,5 @@
 import os
+import shutil
 import sqlite3
 from services import patientClass, dataHandler, resource_path, constants, screen_manager
 
@@ -30,7 +31,7 @@ def remove_media(media):
 
 def remove_patient_data(phone_number):
     try:
-        os.remove(resource_path.resource_path(f"{constants.media_directory_name}\\{phone_number}"))
+        shutil.rmtree(resource_path.resource_path(f"{constants.media_directory_name}\\{phone_number}"))
         dataHandler.delete_patient(phone_number)
     except FileNotFoundError:
         pass
