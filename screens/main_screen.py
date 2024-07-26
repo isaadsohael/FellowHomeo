@@ -1,6 +1,6 @@
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-from services import patient_manager, screen_manager
+from services import patient_manager, screen_manager, constants
 from services import resource_path
 
 
@@ -10,7 +10,7 @@ class UI(pqw.QMainWindow):
         super(UI, self).__init__()
 
         # main screen ui declaration
-        self.ui = resource_path.resource_path("resources/assets/ui/main_window.ui")
+        self.ui = resource_path.resource_path(constants.main_screen_dir)
         # load ui
         uic.loadUi(self.ui, self)
 
@@ -20,31 +20,31 @@ class UI(pqw.QMainWindow):
         # display patient list on main screen as list of widget
         self.show_patient_list(patient_manager.patient_list)
 
-        self.patient_list_widget = self.findChild(pqw.QListWidget, "patient_list_widget")
+        self.patient_list_widget = self.findChild(pqw.QListWidget, constants.patient_list_widget)
         self.patient_list_widget.itemDoubleClicked.connect(self.go_to_patient_record_screen)
         self.patient_list_widget.itemClicked.connect(self.unselect_item)
 
-        self.view_patient_button = self.findChild(pqw.QPushButton, "view_patient_button")
+        self.view_patient_button = self.findChild(pqw.QPushButton, constants.view_patient_button)
         self.view_patient_button.clicked.connect(self.go_to_patient_record_screen)
 
-        self.create_new_patient = self.findChild(pqw.QAction, "actionCreate_New_Patient")
+        self.create_new_patient = self.findChild(pqw.QAction, constants.actionCreate_New_Patient)
         self.create_new_patient.triggered.connect(self.new_patient_screen)
 
-        self.delete_patient_action = self.findChild(pqw.QAction, "actionDelete_Patient")
+        self.delete_patient_action = self.findChild(pqw.QAction, constants.actionDelete_Patient)
         self.delete_patient_action.triggered.connect(
             lambda x: screen_manager.show_dialog("Warning", "Are you sure you want to delete the person?",
                                                  detailed_text=f"All Records of this patient will be deleted:\n{self.patient_list_widget.currentItem().text()}" if self.patient_list_widget.currentItem().isSelected() else "",
                                                  do_what="delete_patient") if self.isSelected else screen_manager.show_dialog(
                 "Warning", "No Patient Selected"))
 
-        self.search_bar = self.findChild(pqw.QLineEdit, "search_textbox")
+        self.search_bar = self.findChild(pqw.QLineEdit, constants.search_textbox)
         self.search_bar.returnPressed.connect(self.search_patients)
         self.search_bar.textChanged.connect(self.search_patients)
 
-        self.clear_search_button = self.findChild(pqw.QPushButton, "clear_search_button")
+        self.clear_search_button = self.findChild(pqw.QPushButton, constants.clear_search_button)
         self.clear_search_button.clicked.connect(lambda x: self.search_bar.setText(""))
 
-        self.findChild(pqw.QAction, "actionQuit").triggered.connect(
+        self.findChild(pqw.QAction, constants.actionQuit).triggered.connect(
             lambda x: screen_manager.show_dialog("Confirm QUIT",
                                                  "Are you sure you want to close the app?",
                                                  detailed_text="",
