@@ -62,10 +62,12 @@ class UI(pqw.QMainWindow):
             self.isSelected = True
 
     def go_to_patient_record_screen(self):
-        if self.patient_list_widget.currentItem().isSelected():
+        if self.isSelected:
             screen_manager.show_screen("PatientRecordUI",
                                        show_record_of=self.patient_list_widget.currentItem().text().split("|")[
                                            -1].rstrip().lstrip())
+        else:
+            screen_manager.show_dialog("Information", "Select Patient To View!")
 
     def show_patient_list(self, patient_list):
         self.patient_list_widget.clear()

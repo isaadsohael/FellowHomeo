@@ -414,15 +414,15 @@ class PatientInfoUI(pqw.QMainWindow):
                 elif record == "date":
                     patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
                     old_record = eval(patient_info[record_items.patient_record_items.index("last_visited_date")])
-                    media_dir_old = f"patient_data\\{self.patient_phone_number}\\{old_record[date_index].replace('/', '-')}"
-                    media_dir_new = f"patient_data\\{self.patient_phone_number}\\{self.changed_record[record].replace('/', '-')}"
+                    media_dir_old = f"{constants.media_directory_name}\\{self.patient_phone_number}\\{old_record[date_index].replace('/', '-')}"
+                    media_dir_new = f"{constants.media_directory_name}\\{self.patient_phone_number}\\{self.changed_record[record].replace('/', '-')}"
                     media_manager.rename_directory(media_dir_old, media_dir_new)
                     old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
                     patient_info[record_items.patient_record_items.index("last_visited_date")] = str(old_record)
                 else:
                     if record == "phone_number":
-                        media_dir_old = f"patient_data\\{patient_info[record_items.patient_record_items.index(record)]}"
-                        media_dir_new = f"patient_data\\{self.changed_record[record]}"
+                        media_dir_old = f"{constants.media_directory_name}\\{patient_info[record_items.patient_record_items.index(record)]}"
+                        media_dir_new = f"{constants.media_directory_name}\\{self.changed_record[record]}"
                         media_manager.rename_directory(media_dir_old, media_dir_new)
                     patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
 

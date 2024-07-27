@@ -22,17 +22,13 @@ def patient_exists(phone_number):
         return False
 
 
-
-
-
 def remove_patient_data(phone_number):
     try:
-        shutil.rmtree(resource_path.resource_path(f"{constants.media_directory_name}\\{phone_number}"))
+        media_dir = resource_path.resource_path(f"{constants.media_directory_name}\\{phone_number}")
+        if os.path.exists(media_dir):
+            shutil.rmtree(media_dir)
         dataHandler.delete_patient(phone_number)
     except FileNotFoundError:
         pass
     except PermissionError:
         screen_manager.show_dialog("Warning", "File In Use")
-
-
-
