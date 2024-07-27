@@ -22,11 +22,7 @@ def patient_exists(phone_number):
         return False
 
 
-def remove_media(media):
-    try:
-        os.remove(media)
-    except FileNotFoundError:
-        pass
+
 
 
 def remove_patient_data(phone_number):
@@ -37,3 +33,6 @@ def remove_patient_data(phone_number):
         pass
     except PermissionError:
         screen_manager.show_dialog("Warning", "File In Use")
+
+
+

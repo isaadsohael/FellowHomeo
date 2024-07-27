@@ -1,8 +1,3 @@
-import datetime
+import shutil
 
-d1 = datetime.datetime.strptime("2028-12-29", '%Y-%m-%d').date()
-d2 = datetime.date.today()
-dateList = [d1, d2]
-dateList.sort()
-
-print(dateList)
+shutil.move("patient_data/01864642312","patient_data/0186464231")

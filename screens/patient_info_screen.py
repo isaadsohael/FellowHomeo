@@ -3,7 +3,7 @@ import shutil
 import datetime
 import PyQt5.QtWidgets as pqw
 from PyQt5 import uic
-from services import constants, record_items, dataHandler, patient_manager, screen_manager, resource_path
+from services import constants, record_items, dataHandler, patient_manager, screen_manager, resource_path, media_manager
 
 
 class PatientInfoUI(pqw.QMainWindow):
@@ -414,10 +414,19 @@ class PatientInfoUI(pqw.QMainWindow):
                 elif record == "date":
                     patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
                     old_record = eval(patient_info[record_items.patient_record_items.index("last_visited_date")])
+                    media_dir_old = f"patient_data\\{self.patient_phone_number}\\{old_record[date_index].replace('/', '-')}"
+                    media_dir_new = f"patient_data\\{self.patient_phone_number}\\{self.changed_record[record].replace('/', '-')}"
+                    media_manager.rename_directory(media_dir_old, media_dir_new)
                     old_record[date_index] = self.changed_record[record]  # old record updates with new data/record
                     patient_info[record_items.patient_record_items.index("last_visited_date")] = str(old_record)
                 else:
+                    if record == "phone_number":
+                        media_dir_old = f"patient_data\\{patient_info[record_items.patient_record_items.index(record)]}"
+                        media_dir_new = f"patient_data\\{self.changed_record[record]}"
+                        media_manager.rename_directory(media_dir_old, media_dir_new)
                     patient_info[record_items.patient_record_items.index(record)] = self.changed_record[record]
+
+
             else:
                 old_record = eval(patient_info[record_items.patient_record_items.index(record)])
                 if record == "necessary_images":
@@ -431,7 +440,7 @@ class PatientInfoUI(pqw.QMainWindow):
                                       os.listdir(self.patient_records[record_items.patient_record_items.index(record)])]
                     for media in existing_media:
                         if media not in self.changed_record[record]:
-                            patient_manager.remove_media(media)
+                            media_manager.remove_media(media)
                 except FileNotFoundError:
                     pass
 
